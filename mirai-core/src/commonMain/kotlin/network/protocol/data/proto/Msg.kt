@@ -14,7 +14,7 @@ import kotlinx.serialization.protobuf.ProtoIntegerType
 import kotlinx.serialization.protobuf.ProtoNumber
 import kotlinx.serialization.protobuf.ProtoType
 import net.mamoe.mirai.internal.utils.io.ProtoBuf
-import net.mamoe.mirai.internal.utils.structureToString
+import net.mamoe.mirai.internal.utils.structureToStringIfAvailable
 import net.mamoe.mirai.utils.EMPTY_BYTE_ARRAY
 
 @Serializable
@@ -383,7 +383,7 @@ internal class ImMsgBody : ProtoBuf {
         @ProtoNumber(53) @JvmField val commonElem: CommonElem? = null,
     ) : ProtoBuf {
         override fun toString(): String {
-            return this.structureToString()
+            return this.structureToStringIfAvailable() ?: super.toString()
         }
     }
 
