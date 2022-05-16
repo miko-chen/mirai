@@ -33,11 +33,15 @@ internal class QuoteReplyProtocol : MessageProtocol(PRIORITY_METADATA) {
         override suspend fun MessageDecoderContext.process(data: ImMsgBody.Elem) {
             if (data.srcMsg == null) return
             markAsConsumed()
-            OfflineMessageSourceImplData(
-                data.srcMsg,
-                attributes[BOT],
-                attributes[MESSAGE_SOURCE_KIND],
-                attributes[GROUP_ID]
+            collect(
+                QuoteReply(
+                    OfflineMessageSourceImplData(
+                        data.srcMsg,
+                        attributes[BOT],
+                        attributes[MESSAGE_SOURCE_KIND],
+                        attributes[GROUP_ID]
+                    )
+                )
             )
         }
 
