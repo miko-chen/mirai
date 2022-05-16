@@ -19,7 +19,6 @@ import net.mamoe.mirai.internal.message.protocol.*
 import net.mamoe.mirai.internal.network.framework.AbstractMockNetworkHandlerTest
 import net.mamoe.mirai.internal.network.protocol.data.proto.ImMsgBody
 import net.mamoe.mirai.internal.notice.processors.GroupExtensions
-import net.mamoe.mirai.internal.utils.structureToString
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.MessageChainBuilder
 import net.mamoe.mirai.message.data.MessageSourceKind
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.test.asserter
 
 internal abstract class AbstractMessageProtocolTest : AbstractMockNetworkHandlerTest(), GroupExtensions {
 
@@ -65,32 +63,26 @@ internal abstract class AbstractMessageProtocolTest : AbstractMockNetworkHandler
         protocol: MessageProtocol,
         encode: MessageProtocolFacade.() -> List<ImMsgBody.Elem>
     ) {
-        assertEquals(
+        asserter.assertEquals(
             expectedStruct,
             facadeOf(protocol).encode(),
             message = "Failed to check single Protocol"
         )
-        assertEquals(
+        asserter.assertEquals(
             expectedStruct,
             MessageProtocolFacade.INSTANCE.encode(),
             message = "Failed to check with all protocols"
         )
     }
 
-    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-    private fun <@kotlin.internal.OnlyInputTypes T> assertEquals(
-        expected: List<T>,
-        actual: List<T>,
-        message: String? = null
-    ) {
-        if (expected.size == 1 && actual.size == 1) {
-            asserter.assertEquals(message, expected.single().structureToString(), actual.single().structureToString())
-        } else {
-            asserter.assertEquals(
-                message,
-                expected.joinToString { it.structureToString() },
-                actual.joinToString { it.structureToString() })
-        }
+    var asserter: EqualityAsserter = EqualityAsserter.OrdinaryThenStructural
+
+    fun useOrdinaryEquality() {
+        asserter = EqualityAsserter.Ordinary
+    }
+
+    fun useStructuralEquality() {
+        asserter = EqualityAsserter.Structural
     }
 
     protected fun doDecoderChecks(
@@ -98,12 +90,12 @@ internal abstract class AbstractMessageProtocolTest : AbstractMockNetworkHandler
         protocol: MessageProtocol = this.protocol,
         decode: MessageProtocolFacade.() -> MessageChain
     ) {
-        assertEquals(
+        asserter.assertEquals(
             expectedChain.toList(),
             facadeOf(protocol).decode().toList(),
             message = "Failed to check single Protocol"
         )
-        assertEquals(
+        asserter.assertEquals(
             expectedChain.toList(),
             MessageProtocolFacade.INSTANCE.decode().toList(),
             message = "Failed to check with all protocols"
