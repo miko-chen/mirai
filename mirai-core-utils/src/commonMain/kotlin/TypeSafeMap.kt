@@ -12,9 +12,9 @@
 package net.mamoe.mirai.utils
 
 import kotlinx.serialization.Serializable
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.jvm.JvmInline
 
 @Serializable
 @JvmInline

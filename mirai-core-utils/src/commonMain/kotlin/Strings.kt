@@ -12,6 +12,9 @@
 
 package net.mamoe.mirai.utils
 
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+
 // region Emoji pattern. <Licenced under the MIT LICENSE>
 //
 // https://github.com/mathiasbynens/emoji-test-regex-pattern
