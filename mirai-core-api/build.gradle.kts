@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(kotlin("reflect"))
                 api(`kotlinx-serialization-core`)
                 api(`kotlinx-serialization-json`)
                 api(`kotlinx-coroutines-core`) // don't remove it, otherwise IDE will complain
@@ -52,7 +53,6 @@ kotlin {
 
         val jvmBaseMain by getting {
             dependencies {
-                api(kotlin("reflect"))
                 api(`ktor-client-okhttp`)
                 api(`kotlinx-coroutines-jdk8`)
                 implementation(`jetbrains-annotations`)

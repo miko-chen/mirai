@@ -9,6 +9,7 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.Project
+import org.gradle.api.attributes.Attribute
 import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
@@ -25,10 +26,17 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
+private val miraiPlatform = Attribute.of(
+    "net.mamoe.mirai.platform",
+    String::class.java
+)
+
+
 fun Project.configureHMPPJvm() {
     extensions.getByType(KotlinMultiplatformExtension::class.java).apply {
         jvm("jvmBase") {
             attributes.attribute(KotlinPlatformType.attribute, KotlinPlatformType.common) // avoid resolving by others
+//            attributes.attribute(miraiPlatform, "jvmBase")
         }
 
         if (isAndroidSDKAvailable) {
@@ -106,7 +114,7 @@ fun Project.configureHMPPJvm() {
         jvmBaseTest.dependsOn(commonTest)
 
         jvmMain.dependsOn(jvmBaseMain)
-        androidMain.dependsOn(commonMain)
+        androidMain.dependsOn(jvmBaseMain)
 
         jvmTest.dependsOn(jvmBaseTest)
         androidTest.dependsOn(commonTest)
