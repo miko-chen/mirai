@@ -9,7 +9,9 @@
 
 package net.mamoe.mirai.utils
 
+import kotlinx.io.errors.IOException
+
 public actual interface Closeable {
     @Throws(IOException::class)
-    actual fun close()
+    public actual fun close()
 }

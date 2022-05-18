@@ -12,7 +12,6 @@ package net.mamoe.mirai.utils
 import kotlinx.io.errors.IOException
 
 public expect interface Closeable {
-
     @Throws(IOException::class)
     public fun close()
 }

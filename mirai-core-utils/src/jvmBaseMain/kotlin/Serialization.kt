@@ -7,9 +7,6 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
-@file:JvmMultifileClass
-@file:JvmName("MiraiUtils")
-
 package net.mamoe.mirai.utils
 
 import kotlinx.serialization.BinaryFormat

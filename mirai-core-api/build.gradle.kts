@@ -40,8 +40,7 @@ kotlin {
                 implementation(project(":mirai-console-compiler-annotations"))
                 implementation(`kotlinx-serialization-protobuf`)
                 implementation(`kotlinx-atomicfu`)
-                implementationKotlinxIo()
-
+                implementationKotlinxIo(`kotlinx-io-common`)
             }
         }
 
@@ -58,6 +57,7 @@ kotlin {
                 implementation(`jetbrains-annotations`)
                 implementation(`log4j-api`)
                 compileOnly(`slf4j-api`)
+                implementationKotlinxIo(`kotlinx-io-jvm`)
             }
         }
 
@@ -78,6 +78,12 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 runtimeOnly(files("build/classes/kotlin/jvm/test")) // classpath is not properly set by IDE
+            }
+        }
+
+        val nativeMain by getting {
+            dependencies {
+                implementationKotlinxIo(`kotlinx-io-native`)
             }
         }
     }

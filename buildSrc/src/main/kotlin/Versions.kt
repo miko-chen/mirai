@@ -80,10 +80,12 @@ val `kotlinx-serialization-core` = kotlinx("serialization-core", Versions.serial
 val `kotlinx-serialization-json` = kotlinx("serialization-json", Versions.serialization)
 val `kotlinx-serialization-protobuf` = kotlinx("serialization-protobuf", Versions.serialization)
 const val `kotlinx-atomicfu` = "org.jetbrains.kotlinx:atomicfu:${Versions.atomicFU}"
-val `kotlinx-io` = kotlinx("io-jvm", Versions.io)
+val `kotlinx-io-common` = kotlinx("io", Versions.io)
+val `kotlinx-io-jvm` = kotlinx("io-jvm", Versions.io)
+val `kotlinx-io-native` = kotlinx("io-macosx64", Versions.io)
 
-fun KotlinDependencyHandler.implementationKotlinxIo() {
-    implementation(`kotlinx-io`) {
+fun KotlinDependencyHandler.implementationKotlinxIo(module: String) {
+    implementation(module) {
         /*
                     |    +--- org.jetbrains.kotlinx:kotlinx-io-jvm:0.1.16
                     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.3.60 -> 1.5.30 (*)
@@ -98,7 +100,7 @@ fun KotlinDependencyHandler.implementationKotlinxIo() {
     }
 }
 
-val `kotlinx-coroutines-io` = kotlinx("coroutines-io-jvm", Versions.coroutinesIo)
+val `kotlinx-coroutines-io` = kotlinx("coroutines-io", Versions.coroutinesIo)
 
 val `ktor-serialization` = ktor("serialization", Versions.ktor)
 

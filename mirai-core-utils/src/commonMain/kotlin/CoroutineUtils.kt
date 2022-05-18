@@ -7,8 +7,8 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
-@file:JvmMultifileClass
-@file:JvmName("MiraiUtils")
+
+@file:JvmName("CoroutineUtils_common")
 
 package net.mamoe.mirai.utils
 
@@ -17,7 +17,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 public expect suspend inline fun <R> runBIO(

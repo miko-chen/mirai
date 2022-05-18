@@ -7,18 +7,12 @@
  * https://github.com/mamoe/mirai/blob/master/LICENSE
  */
 
-@file:JvmMultifileClass
-@file:JvmName("MiraiUtils")
-
-
 package net.mamoe.mirai.utils
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 
 public fun SerialDescriptor.copy(newName: String): SerialDescriptor =
     buildClassSerialDescriptor(newName) { takeElementsFrom(this@copy) }

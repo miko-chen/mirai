@@ -73,10 +73,10 @@ fun Project.configureHMPPJvm() {
                 "watchosArm32, watchosArm64, watchosX86, watchosX64, watchosSimulatorArm64",
                 "tvosArm64, tvosX64, tvosSimulatorArm64",
                 "macosX64, macosArm64",
-                "linuxArm64, linuxArm32Hfp, linuxMips32, linuxMipsel32, linuxX64",
-                "mingwX64, mingwX86",
-//                "wasm32"
-            ).flatMap { it.split(", ") }
+                "linuxMips32, linuxMipsel32, linuxX64",
+                "mingwX64",
+//                "wasm32" // linuxArm32Hfp, mingwX86
+            ).flatMap { it.split(",") }.map { it.trim() }
             presets.filter { it.name in nativeTargets }
                 .forEach { preset ->
                     val target = targetFromPreset(preset, preset.name)

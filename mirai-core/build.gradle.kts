@@ -38,7 +38,7 @@ kotlin {
                 implementation(project(":mirai-core-utils"))
                 implementation(`kotlinx-serialization-protobuf`)
                 implementation(`kotlinx-atomicfu`)
-                implementationKotlinxIo()
+                implementationKotlinxIo(`kotlinx-io-common`)
             }
         }
 
@@ -54,6 +54,7 @@ kotlin {
                 implementation(bouncycastle)
                 implementation(`log4j-api`)
                 implementation(`netty-all`)
+                implementationKotlinxIo(`kotlinx-io-jvm`)
             }
         }
 
@@ -86,6 +87,12 @@ kotlin {
             dependencies {
                 api(`kotlinx-coroutines-debug`)
                 //  implementation("net.mamoe:mirai-login-solver-selenium:1.0-dev-14")
+            }
+        }
+
+        val nativeMain by getting {
+            dependencies {
+                implementationKotlinxIo(`kotlinx-io-native`)
             }
         }
     }

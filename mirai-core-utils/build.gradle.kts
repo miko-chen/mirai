@@ -35,13 +35,19 @@ kotlin {
 
                 implementation(`kotlinx-atomicfu`)
                 implementation(`kotlinx-serialization-protobuf`)
-                implementationKotlinxIo()
+                implementationKotlinxIo(`kotlinx-io-common`)
             }
         }
 
         val commonTest by getting {
             dependencies {
                 api(yamlkt)
+            }
+        }
+
+        val jvmBaseMain by getting {
+            dependencies {
+                implementationKotlinxIo(`kotlinx-io-jvm`)
             }
         }
 
@@ -60,6 +66,12 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 runtimeOnly(files("build/classes/kotlin/jvm/test")) // classpath is not properly set by IDE
+            }
+        }
+
+        val nativeMain by getting {
+            dependencies {
+                implementationKotlinxIo(`kotlinx-io-native`)
             }
         }
     }
