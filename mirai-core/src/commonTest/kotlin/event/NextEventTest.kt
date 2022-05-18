@@ -15,9 +15,9 @@ import kotlinx.coroutines.*
 import me.him188.kotlin.jvm.blocking.bridge.JvmBlockingBridge
 import net.mamoe.mirai.event.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.assertFailsWith
 import java.util.concurrent.Executors
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -106,7 +106,7 @@ internal class NextEventTest : AbstractEventTest() {
         val channel = GlobalEventChannel
 
         withContext(dispatcher) {
-            assertThrows<TimeoutCancellationException> {
+            assertFailsWith<TimeoutCancellationException> {
                 withTimeout(timeMillis = 1) { channel.nextEvent<TE>(EventPriority.MONITOR) }
             }
         }

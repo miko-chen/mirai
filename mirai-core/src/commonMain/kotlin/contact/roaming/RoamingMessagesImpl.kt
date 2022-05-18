@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Mamoe Technologies and contributors.
+ * Copyright 2019-2022 Mamoe Technologies and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -15,7 +15,6 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.roaming.RoamingMessage
 import net.mamoe.mirai.contact.roaming.RoamingMessageFilter
@@ -27,10 +26,11 @@ import net.mamoe.mirai.internal.network.protocol.data.proto.MsgComm
 import net.mamoe.mirai.internal.network.protocol.packet.chat.receive.MessageSvcPbGetRoamMsgReq
 import net.mamoe.mirai.internal.network.protocol.packet.sendAndExpect
 import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.utils.*
-import java.util.stream.Stream
+import net.mamoe.mirai.utils.check
+import net.mamoe.mirai.utils.mapToIntArray
+import net.mamoe.mirai.utils.toLongUnsigned
 
-internal sealed class RoamingMessagesImpl : RoamingMessages {
+internal abstract class CommonRoamingMessagesImpl : RoamingMessages {
     abstract val contact: AbstractContact
 
     override suspend fun getMessagesIn(
@@ -61,11 +61,11 @@ internal sealed class RoamingMessagesImpl : RoamingMessages {
         }
     }
 
-    private fun createRoamingMessage(
+    protected fun createRoamingMessage(
         message: MsgComm.Msg,
         messages: List<MsgComm.Msg>
     ) = object : RoamingMessage {
-        override val contact: Contact get() = this@RoamingMessagesImpl.contact
+        override val contact: Contact get() = this@CommonRoamingMessagesImpl.contact
         override val sender: Long get() = message.msgHead.fromUin
         override val target: Long
             get() = message.msgHead.groupInfo?.groupCode ?: message.msgHead.toUin
@@ -76,44 +76,15 @@ internal sealed class RoamingMessagesImpl : RoamingMessages {
         }
     }
 
-
-    @JavaFriendlyAPI
-    override suspend fun getMessagesStream(
-        timeStart: Long,
-        timeEnd: Long,
-        filter: RoamingMessageFilter?,
-    ): Stream<MessageChain> {
-        return stream {
-            var lastMessageTime = timeEnd
-            var random = 0L
-            while (true) {
-                val resp = runBlocking {
-                    requestRoamMsg(timeStart, lastMessageTime, random)
-                }
-
-                val messages = resp.messages ?: break
-                if (filter == null || filter === RoamingMessageFilter.ANY) {
-                    messages.forEach { yield(runBlocking { it.toMessageChainOnline(contact.bot) }) }
-                } else {
-                    for (message in messages) {
-                        if (filter.invoke(createRoamingMessage(message, messages))) {
-                            yield(runBlocking { message.toMessageChainOnline(contact.bot) })
-                        }
-                    }
-                }
-
-                lastMessageTime = resp.lastMessageTime
-                random = resp.random
-            }
-        }
-    }
-
     abstract suspend fun requestRoamMsg(
         timeStart: Long,
         lastMessageTime: Long,
         random: Long
     ): MessageSvcPbGetRoamMsgReq.Response
 }
+
+
+internal expect sealed class RoamingMessagesImpl() : CommonRoamingMessagesImpl
 
 internal class RoamingMessagesImplFriend(
     override val contact: FriendImpl

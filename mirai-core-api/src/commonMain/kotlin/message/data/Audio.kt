@@ -21,6 +21,10 @@ import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.MessageSerializers
 import net.mamoe.mirai.message.data.MessageChain.Companion.serializeToJsonString
 import net.mamoe.mirai.utils.*
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmSynthetic
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 

@@ -26,7 +26,7 @@ import net.mamoe.mirai.internal.network.handler.state.StateObserver
 import net.mamoe.mirai.internal.utils.subLogger
 import net.mamoe.mirai.utils.MiraiLogger
 import network.framework.components.TestEventDispatcherImpl
-import org.junit.jupiter.api.TestInstance
+import kotlin.test.TestInstance
 import kotlin.test.assertEquals
 
 /**

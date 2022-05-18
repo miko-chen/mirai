@@ -24,7 +24,7 @@ import net.mamoe.mirai.internal.network.protocol.packet.OutgoingPacket
 import net.mamoe.mirai.internal.test.runBlockingUnit
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.currentTimeSeconds
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame

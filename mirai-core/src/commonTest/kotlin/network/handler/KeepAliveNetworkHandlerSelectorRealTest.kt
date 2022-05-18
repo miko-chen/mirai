@@ -21,7 +21,7 @@ import net.mamoe.mirai.internal.network.handler.selector.NetworkException
 import net.mamoe.mirai.internal.test.runBlockingUnit
 import net.mamoe.mirai.utils.TestOnly
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.assertFailsWith
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -49,7 +49,7 @@ internal class KeepAliveNetworkHandlerSelectorRealTest : AbstractNettyNHTest() {
             }
 
             val selector = TestSelector(3) { createHandler() }
-            assertThrows<Throwable> { selector.awaitResumeInstance() }
+            assertFailsWith<Throwable> { selector.awaitResumeInstance() }
         }
 
         // Since #1963, any error during first login will close the bot. So we assume first login succeed to do our test.
@@ -67,7 +67,7 @@ internal class KeepAliveNetworkHandlerSelectorRealTest : AbstractNettyNHTest() {
             }
 
             val selector = TestSelector(3) { createHandler() }
-            assertThrows<MaxAttemptsReachedException> { selector.awaitResumeInstance() }.let {
+            assertFailsWith<MaxAttemptsReachedException> { selector.awaitResumeInstance() }.let {
                 assertIs<NetworkException>(it.cause)
             }
         }
@@ -78,7 +78,7 @@ internal class KeepAliveNetworkHandlerSelectorRealTest : AbstractNettyNHTest() {
                 throw MyException()
             }
             val selector = TestSelector(3) { createHandler() }
-            assertThrows<MaxAttemptsReachedException> { selector.awaitResumeInstance() }.let {
+            assertFailsWith<MaxAttemptsReachedException> { selector.awaitResumeInstance() }.let {
                 assertIs<MyException>(it.cause)
             }
         }

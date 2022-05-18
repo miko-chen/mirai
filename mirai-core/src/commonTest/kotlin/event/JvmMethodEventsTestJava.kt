@@ -12,8 +12,8 @@ package net.mamoe.mirai.internal.event
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.event.*
-import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class JvmMethodEventsTestJava : AbstractEventTest() {

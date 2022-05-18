@@ -29,12 +29,11 @@ import net.mamoe.mirai.console.permission.PermissionService.Companion.permit
 import net.mamoe.mirai.console.testFramework.AbstractConsoleInstanceTest
 import net.mamoe.mirai.message.data.*
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import java.time.*
 import java.time.temporal.TemporalAccessor
 import kotlin.reflect.KClass
 import kotlin.test.*
+import kotlin.test.TestInstance
 
 class TestCompositeCommand : CompositeCommand(
     owner,

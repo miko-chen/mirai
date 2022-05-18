@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.first
 import me.him188.kotlin.jvm.blocking.bridge.JvmBlockingBridge
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.broadcast
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertIs
 
 @JvmBlockingBridge

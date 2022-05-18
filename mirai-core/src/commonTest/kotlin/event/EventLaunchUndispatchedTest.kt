@@ -19,9 +19,9 @@ import net.mamoe.mirai.event.broadcast
 import net.mamoe.mirai.event.globalEventChannel
 import net.mamoe.mirai.internal.network.components.EVENT_LAUNCH_UNDISPATCHED
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executors
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertSame

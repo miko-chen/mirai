@@ -20,8 +20,8 @@ import net.mamoe.mirai.internal.network.impl.netty.NettyChannelException
 import net.mamoe.mirai.internal.test.runBlockingUnit
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
+import kotlin.test.Test
+import kotlin.test.TestInfo
 import kotlin.test.assertFails
 
 /**

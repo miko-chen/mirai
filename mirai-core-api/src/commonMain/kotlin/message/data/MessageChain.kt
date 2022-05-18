@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Mamoe Technologies and contributors.
+ * Copyright 2019-2022 Mamoe Technologies and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -14,7 +14,6 @@
 package net.mamoe.mirai.message.data
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -37,9 +36,8 @@ import net.mamoe.mirai.utils.DeprecatedSinceMirai
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import net.mamoe.mirai.utils.NotStableForInheritance
 import net.mamoe.mirai.utils.safeCast
-import java.util.stream.Stream
+import kotlin.jvm.*
 import kotlin.reflect.KProperty
-import kotlin.streams.asSequence
 import net.mamoe.mirai.console.compiler.common.ResolveContext.Kind.RESTRICTED_ABSTRACT_MESSAGE_KEYS as RAMK
 
 /**
@@ -468,12 +466,6 @@ public inline fun messageChainOf(vararg messages: Message): MessageChain = messa
 @JvmName("newChain")
 public fun Sequence<Message>.toMessageChain(): MessageChain =
     createMessageChainImplOptimized(this.constrainSingleMessages())
-
-/**
- * 扁平化 [this] 并创建一个 [MessageChain].
- */
-@JvmName("newChain")
-public fun Stream<Message>.toMessageChain(): MessageChain = this.asSequence().toMessageChain()
 
 /**
  * 扁平化 [this] 并创建一个 [MessageChain].

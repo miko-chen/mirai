@@ -39,6 +39,7 @@ kotlin {
                 implementation(`kotlinx-serialization-protobuf`)
                 implementation(`kotlinx-atomicfu`)
                 implementation(`ktor-io`)
+                implementation(`ktor-client-core`)
             }
         }
 

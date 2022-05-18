@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Mamoe Technologies and contributors.
+ * Copyright 2019-2022 Mamoe Technologies and contributors.
  *
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
  * Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
@@ -9,6 +9,7 @@
 
 package net.mamoe.mirai.internal.contact.file
 
+import io.ktor.utils.io.core.*
 import net.mamoe.mirai.contact.FileSupported
 import net.mamoe.mirai.contact.file.AbsoluteFile
 import net.mamoe.mirai.contact.file.AbsoluteFolder
@@ -17,6 +18,7 @@ import net.mamoe.mirai.internal.network.protocol.packet.chat.FileManagement
 import net.mamoe.mirai.internal.network.protocol.packet.chat.toResult
 import net.mamoe.mirai.internal.network.protocol.packet.sendAndExpect
 import net.mamoe.mirai.message.data.FileMessage
+import net.mamoe.mirai.utils.isSameClass
 import net.mamoe.mirai.utils.toUHexString
 
 internal class AbsoluteFileImpl(
@@ -148,10 +150,8 @@ internal class AbsoluteFileImpl(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other !is AbsoluteFileImpl || !isSameClass(this, other)) return false
         if (!super.equals(other)) return false
-
-        other as AbsoluteFileImpl
 
         if (expiryTime != other.expiryTime) return false
         if (size != other.size) return false

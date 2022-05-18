@@ -23,7 +23,7 @@ import net.mamoe.mirai.console.internal.data.builtins.AutoLoginConfig.Account.Pa
 import net.mamoe.mirai.internal.QQAndroidBot
 import net.mamoe.mirai.utils.md5
 import net.mamoe.mirai.utils.toUHexString
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 

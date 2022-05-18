@@ -13,9 +13,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.event.*
 import net.mamoe.mirai.utils.JavaFriendlyAPI
-import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Test
 
 @JavaFriendlyAPI
 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")

@@ -53,7 +53,6 @@ import net.mamoe.mirai.message.MessageReceipt
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.spi.AudioToSilkService
 import net.mamoe.mirai.utils.*
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.ExperimentalTime
@@ -107,7 +106,7 @@ internal fun GroupImpl(
 }
 
 private val logger by lazy {
-    MiraiLogger.Factory.create(GroupImpl::class.java, "Group")
+    MiraiLogger.Factory.create(GroupImpl::class, "Group")
 }
 
 @Suppress("PropertyName")

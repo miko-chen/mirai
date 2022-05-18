@@ -31,9 +31,9 @@ import net.mamoe.mirai.utils.debug
 import net.mamoe.mirai.utils.lateinitMutableProperty
 import network.framework.components.TestEventDispatcherImpl
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.TestInstance
 import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.test.TestInstance
 import kotlin.test.assertEquals
 
 /**
