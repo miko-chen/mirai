@@ -10,6 +10,8 @@
 package net.mamoe.mirai.internal.message.protocol.impl
 
 import net.mamoe.mirai.internal.utils.structureToString
+import net.mamoe.mirai.internal.utils.structureToStringIfAvailable
+import kotlin.test.assertNotNull
 import kotlin.test.asserter
 
 internal interface EqualityAsserter {
@@ -39,18 +41,43 @@ internal interface EqualityAsserter {
     object Structural : EqualityAsserter {
         override fun <T> assertEquals(expected: List<T>, actual: List<T>, message: String?) {
             if (expected.size == 1 && actual.size == 1) {
+                val e = expected.single()
+                val a = actual.single()
+                if (a == null || e == null) {
+                    asserter.assertEquals(
+                        "[Null] $message",
+                        structureToStringOrOrdinaryString(e),
+                        structureToStringOrOrdinaryString(a)
+                    )
+                    assertNotNull(a, message)
+                    assertNotNull(e, message)
+                }
+                @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+                if (!e!!::class.isInstance(a) && !a!!::class.isInstance(e)) {
+                    asserter.assertEquals(
+                        "[Incompatible type] $message",
+                        structureToStringOrOrdinaryString(e),
+                        structureToStringOrOrdinaryString(a)
+                    )
+                    return
+                }
                 asserter.assertEquals(
                     message,
-                    expected.single().structureToString(),
-                    actual.single().structureToString()
+                    structureToStringOrOrdinaryString(e),
+                    structureToStringOrOrdinaryString(a)
                 )
             } else {
                 asserter.assertEquals(
                     message,
-                    expected.joinToString { it.structureToString() },
-                    actual.joinToString { it.structureToString() })
+                    expected.joinToString { structureToStringOrOrdinaryString(it) },
+                    actual.joinToString { structureToStringOrOrdinaryString(it) })
             }
         }
+
+        private fun <T> structureToStringOrOrdinaryString(it: T): String =
+            structureToString().ifBlank {
+                it.structureToStringIfAvailable() ?: error("structureToString is not available")
+            }
     }
 
     object OrdinaryThenStructural : EqualityAsserter {
