@@ -8,21 +8,25 @@
  */
 
 @file:Suppress("unused", "DEPRECATION")
+@file:JvmBlockingBridge
 
 package net.mamoe.mirai.utils
 
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.toList
+import me.him188.kotlin.jvm.blocking.bridge.JvmBlockingBridge
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.FileSupported
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.message.MessageReceipt
 import net.mamoe.mirai.message.data.FileMessage
+import net.mamoe.mirai.message.data.sendTo
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.RemoteFile.Companion.uploadFile
 import net.mamoe.mirai.utils.RemoteFile.ProgressionCallback.Companion.asProgressionCallback
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
+import java.io.File
 
 /**
  * 表示一个远程文件或目录.
@@ -99,124 +103,106 @@ import kotlin.jvm.JvmStatic
 ) // deprecated since 2.8.0-RC
 @DeprecatedSinceMirai(warningSince = "2.8")
 @NotStableForInheritance
-public expect interface RemoteFile {
+public actual interface RemoteFile {
     /**
      * 文件名或目录名.
      */
-    public val name: String
+    public actual val name: String
 
     /**
      * 文件的 ID. 群文件允许重名, ID 非空时用来区分重名.
      */
-    public val id: String?
+    public actual val id: String?
 
     /**
      * 标准的绝对路径, 起始字符为 '/'. 如 `/foo/bar.txt`.
      *
      * 根目录路径为 [ROOT_PATH]
      */
-    public val path: String
+    public actual val path: String
 
     /**
      * 获取父目录, 当 [RemoteFile] 表示根目录时返回 `null`
      */
-    public val parent: RemoteFile?
+    public actual val parent: RemoteFile?
 
     /**
      * 此文件所属的群或好友
      */
-    public val contact: FileSupported
+    public actual val contact: FileSupported
 
     /**
      * 当 [RemoteFile] 表示一个文件时返回 `true`.
      */
-    public suspend fun isFile(): Boolean
+    public actual suspend fun isFile(): Boolean
 
     /**
      * 当 [RemoteFile] 表示一个目录时返回 `true`.
      */
-    public open suspend fun isDirectory(): Boolean
+    public actual suspend fun isDirectory(): Boolean = !isFile()
 
     /**
      * 获取文件长度. 当 [RemoteFile] 表示一个目录时行为不确定.
      */
-    public suspend fun length(): Long
+    public actual suspend fun length(): Long
 
-    public class FileInfo @MiraiInternalApi constructor(
-        name: String,
-        id: String,
-        path: String,
-        length: Long,
-        downloadTimes: Int,
-        uploaderId: Long,
-        uploadTime: Long,
-        lastModifyTime: Long,
-        sha1: ByteArray,
-        md5: ByteArray,
-    ) {
-
+    public actual class FileInfo @MiraiInternalApi actual constructor(
         /**
          * 文件或目录名.
          */
-        public val name: String
-
+        public actual val name: String,
         /**
          * 唯一识别标识.
          */
-        public val id: String
-
+        public actual val id: String,
         /**
          * 标准绝对路径.
          */
-        public val path: String
-
+        public actual val path: String,
         /**
          * 文件长度 (大小) bytes, 目录的 [length] 为 0.
          */
-        public val length: Long
-
+        public actual val length: Long,
         /**
          * 下载次数. 目录没有下载次数, 此属性总是 `0`.
          */
-        public val downloadTimes: Int
-
+        public actual val downloadTimes: Int,
         /**
          * 上传者 ID. 目录没有上传者, 此属性总是 `0`.
          */
-        public val uploaderId: Long
-
+        public actual val uploaderId: Long,
         /**
          * 上传的时间. 目录没有上传时间, 此属性总是 `0`.
          */
-        public val uploadTime: Long
-
+        public actual val uploadTime: Long,
         /**
          * 上次修改时间. 时间戳秒.
          */
-        public val lastModifyTime: Long
-        public val sha1: ByteArray
-        public val md5: ByteArray
-
+        public actual val lastModifyTime: Long,
+        public actual val sha1: ByteArray,
+        public actual val md5: ByteArray,
+    ) {
         /**
          * 根据 [FileInfo.id] 或 [FileInfo.path] 获取到对应的 [RemoteFile].
          */
-        public suspend fun resolveToFile(contact: FileSupported): RemoteFile
+        public actual suspend fun resolveToFile(contact: FileSupported): RemoteFile =
+            contact.filesRoot.resolveById(id) ?: contact.filesRoot.resolve(path)
     }
 
     /**
      * 获取这个文件或目录**此时**的详细信息. 当文件或目录不存在时返回 `null`.
      */
-    public suspend fun getInfo(): FileInfo?
+    public actual suspend fun getInfo(): FileInfo?
 
     /**
      * 当文件或目录存在时返回 `true`.
      */
-    public suspend fun exists(): Boolean
+    public actual suspend fun exists(): Boolean
 
     /**
      * @return [path]
      */
-    public override fun toString(): String
+    public actual override fun toString(): String
 
     ///////////////////////////////////////////////////////////////////////////
     // resolve
@@ -228,7 +214,7 @@ public expect interface RemoteFile {
      * @param relative  相对路径. 当初始字符为 '/' 时将作为绝对路径解析
      * @see File.resolve stdlib 内的类似函数
      */
-    public fun resolve(relative: String): RemoteFile
+    public actual fun resolve(relative: String): RemoteFile
 
     /**
      * 获取该目录的子文件. 不会检查 [RemoteFile] 是否表示一个目录. 返回的 [RemoteFile.id] 将会与 `relative.id` 相同.
@@ -236,19 +222,19 @@ public expect interface RemoteFile {
      * @param relative 相对路径. 当 [RemoteFile.path] 初始字符为 '/' 时将作为绝对路径解析
      * @see File.resolve stdlib 内的类似函数
      */
-    public fun resolve(relative: RemoteFile): RemoteFile
+    public actual fun resolve(relative: RemoteFile): RemoteFile
 
     /**
      * 获取该目录下的 ID 为 [id] 的文件, 当 [deep] 为 `true` 时还会进入子目录继续寻找这样的文件. 在不存在时返回 `null`.
      * @see resolve
      */
-    public suspend fun resolveById(id: String, deep: Boolean = true): RemoteFile?
+    public actual suspend fun resolveById(id: String, deep: Boolean): RemoteFile?
 
     /**
      * 获取该目录或子目录下的 ID 为 [id] 的文件, 在不存在时返回 `null`
      * @see resolve
      */
-    public open suspend fun resolveById(id: String): RemoteFile?
+    public actual suspend fun resolveById(id: String): RemoteFile? = resolveById(id, deep = true)
 
     /**
      * 获取父目录的子文件. 如 `RemoteFile("/foo/bar").resolveSibling("gav")` 为 `RemoteFile("/foo/gav")`.
@@ -257,7 +243,7 @@ public expect interface RemoteFile {
      * @param relative 当初始字符为 '/' 时将作为绝对路径解析
      * @see File.resolveSibling stdlib 内的类似函数
      */
-    public fun resolveSibling(relative: String): RemoteFile
+    public actual fun resolveSibling(relative: String): RemoteFile
 
     /**
      * 获取父目录的子文件. 如 `RemoteFile("/foo/bar").resolveSibling("gav")` 为 `RemoteFile("/foo/gav")`.
@@ -266,7 +252,7 @@ public expect interface RemoteFile {
      * @param relative 当 [RemoteFile.path] 初始字符为 '/' 时将作为绝对路径解析
      * @see File.resolveSibling stdlib 内的类似函数
      */
-    public fun resolveSibling(relative: RemoteFile): RemoteFile
+    public actual fun resolveSibling(relative: RemoteFile): RemoteFile
 
     ///////////////////////////////////////////////////////////////////////////
     // operations
@@ -275,7 +261,7 @@ public expect interface RemoteFile {
     /**
      * 删除这个文件或目录. 若目录非空, 则会删除目录中的所有文件. 操作目录或非 Bot 自己上传的文件时需要管理员权限, 无管理员权限时返回 `false`.
      */
-    public suspend fun delete(): Boolean
+    public actual suspend fun delete(): Boolean
 
     /**
      * 重命名这个文件或目录, 将会更改 [RemoteFile.name] 属性值.
@@ -283,7 +269,7 @@ public expect interface RemoteFile {
      *
      * [renameTo] 只会操作远程文件, 而不会修改当前 [RemoteFile.path].
      */
-    public suspend fun renameTo(name: String): Boolean
+    public actual suspend fun renameTo(name: String): Boolean
 
     /**
      * 将这个目录或文件移动到 [target] 位置. 操作目录或非 Bot 自己上传的文件时需要管理员权限, 无管理员权限时返回 `false`.
@@ -301,7 +287,7 @@ public expect interface RemoteFile {
      *
      * @param target 目标文件位置.
      */
-    public suspend fun moveTo(target: RemoteFile): Boolean
+    public actual suspend fun moveTo(target: RemoteFile): Boolean
 
     /**
      * 将这个目录或文件移动到另一个位置. 操作目录或非 Bot 自己上传的文件时需要管理员权限, 无管理员权限时返回 `false`.
@@ -321,7 +307,12 @@ public expect interface RemoteFile {
         level = DeprecationLevel.ERROR
     ) // deprecated since 2.7
     @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10")
-    public open suspend fun moveTo(path: String): Boolean
+    public actual suspend fun moveTo(path: String): Boolean {
+        // Impl notes:
+        // if `path` is absolute, this works as intended.
+        // if not, `resolve(path)` will be a child path from this dir and fails always.
+        return moveTo(resolve(path))
+    }
 
     /**
      * 创建目录. 目录已经存在或无管理员权限时返回 `false`.
@@ -329,31 +320,31 @@ public expect interface RemoteFile {
      * 创建后 [isDirectory] 也不一定会返回 `true`.
      * 当 [id] 未指定时, [RemoteFile] 总是表示一个路径而无法确定目标是文件还是目录, [isFile] 或 [isDirectory] 结果取决于服务器.
      */
-    public suspend fun mkdir(): Boolean
+    public actual suspend fun mkdir(): Boolean
 
     /**
      * 获取该目录下所有文件, 返回的 [RemoteFile] 都拥有 [RemoteFile.id] 用于区分重名文件或目录. 当 [RemoteFile] 表示一个文件时返回 [emptyFlow].
      *
      * 返回的 [Flow] 是*冷*的, 只会在被需要的时候向服务器查询.
      */
-    public suspend fun listFiles(): Flow<RemoteFile>
+    public actual suspend fun listFiles(): Flow<RemoteFile>
 
     /**
      * 获取该目录下所有文件, 返回的 [RemoteFile] 都拥有 [RemoteFile.id] 用于区分重名文件或目录. 当 [RemoteFile] 表示一个文件时返回空迭代器.
      * @param lazy 为 `true` 时惰性获取, 为 `false` 时立即获取全部文件列表.
      */
     @JavaFriendlyAPI
-    public suspend fun listFilesIterator(lazy: Boolean): Iterator<RemoteFile>
+    public actual suspend fun listFilesIterator(lazy: Boolean): Iterator<RemoteFile>
 
     /**
      * 获取该目录下所有文件, 返回的 [RemoteFile] 都拥有 [RemoteFile.id] 用于区分重名文件或目录. 当 [RemoteFile] 表示一个文件时返回 [emptyList].
      */
-    public open suspend fun listFilesCollection(): List<RemoteFile>
+    public actual suspend fun listFilesCollection(): List<RemoteFile> = listFiles().toList()
 
     /**
      * 得到相应文件消息. 当 [RemoteFile] 表示一个目录或文件不存在时返回 `null`.
      */
-    public suspend fun toMessage(): FileMessage?
+    public actual suspend fun toMessage(): FileMessage?
 
     ///////////////////////////////////////////////////////////////////////////
     // upload & download
@@ -369,30 +360,30 @@ public expect interface RemoteFile {
         level = DeprecationLevel.WARNING
     ) // deprecated since 2.8.0-RC
     @DeprecatedSinceMirai(warningSince = "2.8")
-    public interface ProgressionCallback {
+    public actual interface ProgressionCallback {
         /**
          * 当上传开始时调用
          */
-        public open fun onBegin(file: RemoteFile, resource: ExternalResource)
+        public actual fun onBegin(file: RemoteFile, resource: ExternalResource) {}
 
         /**
          * 每当有进度更新时调用. 此方法可能会同时被多个线程调用.
          *
          * 提示: 可通过 [ExternalResource.size] 获取文件总大小.
          */
-        public open fun onProgression(file: RemoteFile, resource: ExternalResource, downloadedSize: Long)
+        public actual fun onProgression(file: RemoteFile, resource: ExternalResource, downloadedSize: Long) {}
 
         /**
          * 当上传成功时调用
          */
-        public open fun onSuccess(file: RemoteFile, resource: ExternalResource)
+        public actual fun onSuccess(file: RemoteFile, resource: ExternalResource) {}
 
         /**
          * 当上传以异常失败时调用
          */
-        public open fun onFailure(file: RemoteFile, resource: ExternalResource, exception: Throwable)
+        public actual fun onFailure(file: RemoteFile, resource: ExternalResource, exception: Throwable) {}
 
-        public companion object {
+        public actual companion object {
             /**
              * 将一个 [SendChannel] 作为 [ProgressionCallback] 使用.
              *
@@ -419,7 +410,21 @@ public expect interface RemoteFile {
              * 直接使用 [ProgressionCallback] 也可以实现示例这样的功能, [asProgressionCallback] 是为了简化操作.
              */
             @JvmStatic
-            public fun SendChannel<Long>.asProgressionCallback(closeOnFinish: Boolean = true): ProgressionCallback
+            public actual fun SendChannel<Long>.asProgressionCallback(closeOnFinish: Boolean): ProgressionCallback {
+                return object : ProgressionCallback {
+                    override fun onProgression(file: RemoteFile, resource: ExternalResource, downloadedSize: Long) {
+                        trySend(downloadedSize)
+                    }
+
+                    override fun onSuccess(file: RemoteFile, resource: ExternalResource) {
+                        if (closeOnFinish) this@asProgressionCallback.close()
+                    }
+
+                    override fun onFailure(file: RemoteFile, resource: ExternalResource, exception: Throwable) {
+                        if (closeOnFinish) this@asProgressionCallback.close(exception)
+                    }
+                }
+            }
         }
     }
 
@@ -457,9 +462,9 @@ public expect interface RemoteFile {
         "Use uploadAndSend instead.", ReplaceWith("this.uploadAndSend(resource, callback)"), DeprecationLevel.ERROR
     ) // deprecated since 2.7-M1
     @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10") // left ERROR intentionally
-    public suspend fun upload(
+    public actual suspend fun upload(
         resource: ExternalResource,
-        callback: ProgressionCallback? = null,
+        callback: ProgressionCallback?,
     ): FileMessage
 
     /**
@@ -473,7 +478,36 @@ public expect interface RemoteFile {
         "Use uploadAndSend instead.", ReplaceWith("this.uploadAndSend(resource)"), DeprecationLevel.ERROR
     )  // deprecated since 2.7-M1
     @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10") // left ERROR intentionally
-    public open suspend fun upload(resource: ExternalResource): FileMessage
+    public actual suspend fun upload(resource: ExternalResource): FileMessage = upload(resource, null)
+
+    /**
+     * 上传文件.
+     * ## 已弃用
+     * 阅读 [upload] 获取更多信息
+     * @see upload
+     */
+    @Suppress("DEPRECATION_ERROR")
+    @Deprecated(
+        "Use uploadAndSend instead.", ReplaceWith("this.uploadAndSend(file, callback)"), DeprecationLevel.ERROR
+    ) // deprecated since 2.7-M1
+    @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10") // left ERROR intentionally
+    public suspend fun upload(
+        file: File,
+        callback: ProgressionCallback? = null,
+    ): FileMessage = file.toExternalResource().use { upload(it, callback) }
+
+    /**
+     * 上传文件.
+     * ## 已弃用
+     * 阅读 [upload] 获取更多信息
+     * @see upload
+     */
+    @Suppress("DEPRECATION_ERROR")
+    @Deprecated(
+        "Use sendFile instead.", ReplaceWith("this.uploadAndSend(file)"), DeprecationLevel.ERROR
+    ) // deprecated since 2.7-M1
+    @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10") // left ERROR intentionally
+    public suspend fun upload(file: File): FileMessage = file.toExternalResource().use { upload(it) }
 
     /**
      * 上传文件并发送文件消息.
@@ -486,53 +520,54 @@ public expect interface RemoteFile {
      * @see upload
      */
     @MiraiExperimentalApi
-    public suspend fun uploadAndSend(resource: ExternalResource): MessageReceipt<Contact>
+    public actual suspend fun uploadAndSend(resource: ExternalResource): MessageReceipt<Contact>
+
+    /**
+     * 上传文件并发送文件消息.
+     * @see uploadAndSend
+     */
+    @MiraiExperimentalApi
+    public suspend fun uploadAndSend(file: File): MessageReceipt<Contact> =
+        file.toExternalResource().use { uploadAndSend(it) }
 
     /**
      * 获取文件下载链接, 当文件不存在或 [RemoteFile] 表示一个目录时返回 `null`
      */
-    public suspend fun getDownloadInfo(): DownloadInfo?
+    public actual suspend fun getDownloadInfo(): DownloadInfo?
 
-    public class DownloadInfo @MiraiInternalApi constructor(
-        filename: String,
-        id: String,
-        path: String,
-        url: String,
-        sha1: ByteArray,
-        md5: ByteArray,
-    ) {
-
+    public actual class DownloadInfo @MiraiInternalApi actual constructor(
         /**
          * @see RemoteFile.name
          */
-        public val filename: String
-
+        public actual val filename: String,
         /**
          * @see RemoteFile.id
          */
-        public val id: String
-
+        public actual val id: String,
         /**
          * 标准绝对路径
          * @see RemoteFile.path
          */
-        public val path: String
-
+        public actual val path: String,
         /**
          * HTTP or HTTPS URL
          */
-        public val url: String
-        public val sha1: ByteArray
-        public val md5: ByteArray
-        override fun toString(): String
+        public actual val url: String,
+        public actual val sha1: ByteArray,
+        public actual val md5: ByteArray,
+    ) {
+        actual override fun toString(): String {
+            return "DownloadInfo(filename='$filename', path='$path', url='$url', sha1=${sha1.toUHexString("")}, " +
+                    "md5=${md5.toUHexString("")})"
+        }
     }
 
-    public companion object {
+    public actual companion object {
         /**
          * 根目录路径
          * @see RemoteFile.path
          */
-        public val ROOT_PATH: String
+        public actual const val ROOT_PATH: String = "/"
 
         /**
          * 上传文件并获取文件消息, 但不发送.
@@ -555,11 +590,38 @@ public expect interface RemoteFile {
             level = DeprecationLevel.ERROR
         ) // deprecated since 2.7-M1
         @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10") // left ERROR intentionally
-        public suspend fun FileSupported.uploadFile(
+        public actual suspend fun FileSupported.uploadFile(
             path: String,
             resource: ExternalResource,
+            callback: ProgressionCallback?,
+        ): FileMessage =
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR") this.filesRoot.resolve(path).upload(resource, callback)
+
+        /**
+         * 上传文件并获取文件消息, 但不发送.
+         * ## 已弃用
+         * 阅读 [uploadFile] 获取更多信息.
+         *
+         * @param path 远程路径. 起始字符为 '/'. 如 '/foo/bar.txt'
+         * @see RemoteFile.upload
+         */
+        @JvmStatic
+        @JvmOverloads
+        @Deprecated(
+            "Use sendFile instead.",
+            ReplaceWith(
+                "this.sendFile(path, file, callback)",
+                "net.mamoe.mirai.utils.RemoteFile.Companion.sendFile"
+            ),
+            level = DeprecationLevel.ERROR
+        ) // deprecated since 2.7-M1
+        @DeprecatedSinceMirai(warningSince = "2.7", errorSince = "2.10") // left ERROR intentionally
+        public suspend fun FileSupported.uploadFile(
+            path: String,
+            file: File,
             callback: ProgressionCallback? = null,
-        ): FileMessage
+        ): FileMessage =
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR") this.filesRoot.resolve(path).upload(file, callback)
 
         /**
          * 上传文件并发送文件消息到相关 [FileSupported].
@@ -574,10 +636,32 @@ public expect interface RemoteFile {
             level = DeprecationLevel.WARNING
         ) // deprecated since 2.8.0-RC
         @DeprecatedSinceMirai(warningSince = "2.8")
-        public suspend fun <C : FileSupported> C.sendFile(
+        public actual suspend fun <C : FileSupported> C.sendFile(
             path: String,
             resource: ExternalResource,
+            callback: ProgressionCallback?,
+        ): MessageReceipt<C> =
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+            this.filesRoot.resolve(path).upload(resource, callback).sendTo(this)
+
+        /**
+         * 上传文件并发送文件消息到相关 [FileSupported].
+         * @see RemoteFile.uploadAndSend
+         */
+        @JvmStatic
+        @JvmOverloads
+        @Deprecated(
+            "Deprecated. Please use AbsoluteFolder.uploadNewFile or RemoteFiles.uploadNewFile",
+            ReplaceWith("file.toExternalResource().use { this.files.uploadNewFile(path, it, callback) }"),
+            level = DeprecationLevel.WARNING
+        ) // deprecated since 2.8.0-RC
+        @DeprecatedSinceMirai(warningSince = "2.8")
+        public suspend fun <C : FileSupported> C.sendFile(
+            path: String,
+            file: File,
             callback: ProgressionCallback? = null,
-        ): MessageReceipt<C>
+        ): MessageReceipt<C> =
+            @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+            this.filesRoot.resolve(path).upload(file, callback).sendTo(this)
     }
 }

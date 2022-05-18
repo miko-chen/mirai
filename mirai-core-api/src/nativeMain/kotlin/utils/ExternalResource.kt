@@ -7,29 +7,21 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
-@file:Suppress("EXPERIMENTAL_API_USAGE", "unused")
-
 package net.mamoe.mirai.utils
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.io.core.Input
-import me.him188.kotlin.jvm.blocking.bridge.JvmBlockingBridge
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.sendImage
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.internal.utils.*
 import net.mamoe.mirai.message.MessageReceipt
 import net.mamoe.mirai.message.data.Image
+import net.mamoe.mirai.message.data.sendTo
 import net.mamoe.mirai.utils.ExternalResource.Companion.sendAsImageTo
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
-
 
 /**
  * 一个*不可变的*外部资源. 仅包含资源内容, 大小, 文件类型, 校验值而不包含文件名, 文件位置等. 外部资源有可能是一个文件, 也有可能只存在于内存, 或者以任意其他方式实现.
@@ -37,10 +29,7 @@ import kotlin.jvm.JvmStatic
  * [ExternalResource] 在创建之后就应该保持其属性的不变, 即任何时候获取其属性都应该得到相同结果, 任何时候打开流都得到的一样的数据.
  *
  * # 创建
- * - [File.toExternalResource]
- * - [RandomAccessFile.toExternalResource]
  * - [ByteArray.toExternalResource]
- * - [InputStream.toExternalResource]
  *
  * ## 在 Kotlin 获得和使用 [ExternalResource] 实例
  *
@@ -51,7 +40,7 @@ import kotlin.jvm.JvmStatic
  * }
  * ```
  *
- * 注意, 若使用 [InputStream], 必须手动关闭 [InputStream]. 一种使用情况示例:
+ * 注意, 若使用 [Input], 必须手动关闭 [Input]. 一种使用情况示例:
  *
  * ```
  * inputStream.use { input -> // 安全地使用 InputStream
@@ -71,7 +60,7 @@ import kotlin.jvm.JvmStatic
  * }
  * ```
  *
- * 注意, 若使用 [InputStream], 必须手动关闭 [InputStream]. 一种使用情况示例:
+ * 注意, 若使用 [Input], 必须手动关闭 [Input]. 一种使用情况示例:
  *
  * ```java
  * try (InputStream stream = ...) { // 安全地使用 InputStream
@@ -84,8 +73,8 @@ import kotlin.jvm.JvmStatic
  *
  * # 释放
  *
- * 当 [ExternalResource] 创建时就可能会打开一个文件 (如使用 [File.toExternalResource]).
- * 类似于 [InputStream], [ExternalResource] 需要被 [关闭][close].
+ * 当 [ExternalResource] 创建时就可能会打开一些资源.
+ * 类似于 [Input], [ExternalResource] 需要被 [关闭][close].
  *
  * ## 未释放资源的补救策略
  *
@@ -120,7 +109,7 @@ import kotlin.jvm.JvmStatic
  *
  * @see FileCacheStrategy
  */
-public expect interface ExternalResource : Closeable {
+public actual interface ExternalResource : Closeable {
 
     /**
      * 是否在 _使用一次_ 后自动 [close].
@@ -132,18 +121,23 @@ public expect interface ExternalResource : Closeable {
      * @since 2.8
      */
     @MiraiExperimentalApi
-    public open val isAutoClose: Boolean
+    public actual val isAutoClose: Boolean
+        get() = false
 
     /**
      * 文件内容 MD5. 16 bytes
      */
-    public val md5: ByteArray
+    public actual val md5: ByteArray
 
     /**
      * 文件内容 SHA1. 16 bytes
      * @since 2.5
      */
-    public open val sha1: ByteArray
+    public actual val sha1: ByteArray
+        get() =
+            throw UnsupportedOperationException("ExternalResource.sha1 is not implemented by ${this::class.simpleName}")
+    // 如果你要实现 [ExternalResource], 你也应该实现 [sha1].
+    // 这里默认抛出 [UnsupportedOperationException] 是为了 (姑且) 兼容 2.5 以前的版本的实现.
 
 
     /**
@@ -156,17 +150,17 @@ public expect interface ExternalResource : Closeable {
      * @see net.mamoe.mirai.utils.FILE_TYPES
      * @see DEFAULT_FORMAT_NAME
      */
-    public val formatName: String
+    public actual val formatName: String
 
     /**
      * 文件大小 bytes
      */
-    public val size: Long
+    public actual val size: Long
 
     /**
      * 当 [close] 时会 [CompletableDeferred.complete] 的 [Deferred].
      */
-    public val closed: Deferred<Unit>
+    public actual val closed: Deferred<Unit>
 
     /**
      * 打开 [Input]. 在返回的 [Input] 被 [关闭][Input.close] 前无法再次打开流.
@@ -176,47 +170,55 @@ public expect interface ExternalResource : Closeable {
      *
      * @since SINCE_NATIVE_TARGET
      */
-    public fun input(): Input
+    public actual fun input(): Input
 
     @MiraiInternalApi
-    public open fun calculateResourceId(): String
+    public actual fun calculateResourceId(): String {
+        return generateImageId(md5, formatName.ifEmpty { DEFAULT_FORMAT_NAME })
+    }
 
     /**
      * 该 [ExternalResource] 的数据来源, 可能有以下的返回
      *
-     * - [File] 本地文件
-     * - [java.nio.file.Path] 某个具体文件路径
-     * - [java.nio.ByteBuffer] RAM
-     * - [java.net.URI] uri
      * - [ByteArray] RAM
-     * - Or more...
+     * - ...
      *
      * implementation note:
      *
-     * - 对于无法二次读取的数据来源 (如 [InputStream]), 返回 `null`
-     * - 对于一个来自网络的资源, 请返回 [java.net.URI] (not URL, 或者其他库的 URI/URL 类型)
+     * - 对于无法二次读取的数据来源 (如 [Input]), 返回 `null`
      * - 不要返回 [String], 没有约定 [String] 代表什么
-     * - 数据源外漏会严重影响 [inputStream] 等的执行的可以返回 `null` (如 [RandomAccessFile])
+     * - 数据源外漏会严重影响 [inputStream] 等的执行的可以返回 `null` (如文件句柄)
      *
      * @since 2.8.0
      */
-    public open val origin: Any?
+    public actual val origin: Any? get() = null
 
     /**
      * 创建一个在 _使用一次_ 后就会自动 [close] 的 [ExternalResource].
      *
      * @since 2.8.0
      */
-    public open fun toAutoCloseable(): ExternalResource
+    public actual fun toAutoCloseable(): ExternalResource {
+        return if (isAutoClose) this else {
+            val delegate = this
+            object : ExternalResource by delegate {
+                override val isAutoClose: Boolean get() = true
+                override fun toString(): String = "ExternalResourceWithAutoClose(delegate=$delegate)"
+                override fun toAutoCloseable(): ExternalResource {
+                    return this
+                }
+            }
+        }
+    }
 
 
-    public companion object {
+    public actual companion object {
         /**
          * 在无法识别文件格式时使用的默认格式名. "mirai".
          *
          * @see ExternalResource.formatName
          */
-        public val DEFAULT_FORMAT_NAME: String
+        public actual const val DEFAULT_FORMAT_NAME: String = "mirai"
 
         ///////////////////////////////////////////////////////////////////////////
         // region toExternalResource
@@ -227,10 +229,8 @@ public expect interface ExternalResource : Closeable {
          *
          * @param formatName 查看 [ExternalResource.formatName]
          */
-        @JvmStatic
-        @JvmOverloads
-        @JvmName("create")
-        public fun ByteArray.toExternalResource(formatName: String? = null): ExternalResource
+        public actual fun ByteArray.toExternalResource(formatName: String?): ExternalResource =
+            ExternalResourceImplByByteArray(this, formatName)
 
         // endregion
 
@@ -248,10 +248,8 @@ public expect interface ExternalResource : Closeable {
          *
          * @throws OverFileSizeMaxException
          */
-        @JvmBlockingBridge
-        @JvmStatic
-        @JvmName("sendAsImage")
-        public suspend fun <C : Contact> ExternalResource.sendAsImageTo(contact: C): MessageReceipt<C>
+        public actual suspend fun <C : Contact> ExternalResource.sendAsImageTo(contact: C): MessageReceipt<C> =
+            contact.uploadImage(this).sendTo(contact)
 
         // endregion
 
@@ -268,48 +266,8 @@ public expect interface ExternalResource : Closeable {
          *
          * @see Contact.uploadImage 最终调用, 上传图片.
          */
-        @JvmStatic
-        @JvmBlockingBridge
-        public suspend fun ExternalResource.uploadAsImage(contact: Contact): Image
+        public actual suspend fun ExternalResource.uploadAsImage(contact: Contact): Image = contact.uploadImage(this)
 
         // endregion
     }
-}
-
-/**
- * 执行 [action], 如果 [ExternalResource.isAutoClose], 在执行完成后调用 [ExternalResource.close].
- *
- * @since 2.8
- */
-@MiraiExperimentalApi
-// Continuing mark it as experimental until Kotlin's contextual receivers design is published.
-// We might be able to make `action` a type `context(ExternalResource) () -> R`.
-public inline fun <T : ExternalResource, R> T.withAutoClose(action: () -> R): R {
-    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-    trySafely(
-        block = { return action() },
-        finally = { if (isAutoClose) close() }
-    )
-}
-
-/**
- * 执行 [action], 如果 [ExternalResource.isAutoClose], 在执行完成后调用 [ExternalResource.close].
- *
- * @since 2.8
- */
-@MiraiExperimentalApi
-public inline fun <T : ExternalResource, R> T.runAutoClose(action: T.() -> R): R {
-    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-    return withAutoClose { action() }
-}
-
-/**
- * 执行 [action], 如果 [ExternalResource.isAutoClose], 在执行完成后调用 [ExternalResource.close].
- *
- * @since 2.8
- */
-@MiraiExperimentalApi
-public inline fun <T : ExternalResource, R> T.useAutoClose(action: (resource: T) -> R): R {
-    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-    return runAutoClose(action)
 }

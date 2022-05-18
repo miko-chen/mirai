@@ -7,15 +7,19 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
+@file:JvmBlockingBridge
 @file:Suppress("INAPPLICABLE_JVM_NAME")
 
 package net.mamoe.mirai.contact.announcement
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
+import me.him188.kotlin.jvm.blocking.bridge.JvmBlockingBridge
 import net.mamoe.mirai.contact.Group
 import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.utils.ExternalResource
 import net.mamoe.mirai.utils.NotStableForInheritance
+import java.util.stream.Stream
 
 
 /**
@@ -39,14 +43,24 @@ import net.mamoe.mirai.utils.NotStableForInheritance
  *
  * @since 2.7
  */
+@JvmBlockingBridge
 @NotStableForInheritance
-public expect interface Announcements {
+public actual interface Announcements {
     /**
      * 创建一个能获取该群内所有群公告列表的 [Flow]. 在 [Flow] 被使用时才会分页下载 [OnlineAnnouncement].
      *
      * 异常不会抛出, 只会记录到网络日志. 当获取发生异常时将会终止获取, 不影响已经成功获取的 [OfflineAnnouncement] 和 [Flow] 的[收集][Flow.collect].
      */
-    public suspend fun asFlow(): Flow<OnlineAnnouncement>
+    public actual suspend fun asFlow(): Flow<OnlineAnnouncement>
+
+    /**
+     * 创建一个能获取该群内所有群公告列表的 [Stream]. 在 [Stream] 被使用时才会分页下载 [OnlineAnnouncement].
+     *
+     * 异常不会抛出, 只会记录到网络日志. 当获取发生异常时将会终止获取, 不影响已经成功获取的 [OfflineAnnouncement] 和 [Stream] 的[收集][Stream.collect].
+     *
+     * 实现细节: 为了适合 Java 调用, 实现类似为阻塞式的 [asFlow], 因此不建议在 Kotlin 使用. 在 Kotlin 请使用 [asFlow].
+     */
+    public fun asStream(): Stream<OnlineAnnouncement>
 
     /**
      * 获取所有群公告列表, 将全部 [OnlineAnnouncement] 都下载后再返回.
@@ -55,7 +69,7 @@ public expect interface Announcements {
      *
      * @return 此时刻的群公告只读列表.
      */
-    public open suspend fun toList(): List<OnlineAnnouncement>
+    public actual suspend fun toList(): List<OnlineAnnouncement> = asFlow().toList()
 
 
     /**
@@ -69,7 +83,7 @@ public expect interface Announcements {
      *
      * @see OnlineAnnouncement.delete
      */
-    public suspend fun delete(fid: String): Boolean
+    public actual suspend fun delete(fid: String): Boolean
 
     /**
      * 获取一条群公告.
@@ -77,7 +91,7 @@ public expect interface Announcements {
      * @return 返回 `null` 表示不存在该 [fid] 的群公告
      * @throws IllegalStateException 当协议异常时抛出
      */
-    public suspend fun get(fid: String): OnlineAnnouncement?
+    public actual suspend fun get(fid: String): OnlineAnnouncement?
 
     /**
      * 在该群发布群公告并获得 [OnlineAnnouncement], 需要管理员权限. 发布公告后群内将会出现 "有新公告" 系统提示.
@@ -85,7 +99,7 @@ public expect interface Announcements {
      * @throws IllegalStateException 当协议异常时抛出
      * @see Announcement.publishTo
      */
-    public suspend fun publish(announcement: Announcement): OnlineAnnouncement
+    public actual suspend fun publish(announcement: Announcement): OnlineAnnouncement
 
     /**
      * 上传资源作为群公告图片. 返回值可用于 [AnnouncementParameters.image].
@@ -93,5 +107,5 @@ public expect interface Announcements {
      * **注意**: 需要由调用方[关闭][ExternalResource.close] [resource].
      * @throws IllegalStateException 当协议异常时抛出
      */
-    public suspend fun uploadImage(resource: ExternalResource): AnnouncementImage
+    public actual suspend fun uploadImage(resource: ExternalResource): AnnouncementImage
 }

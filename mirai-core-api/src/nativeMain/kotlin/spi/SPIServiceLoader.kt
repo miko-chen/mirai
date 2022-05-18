@@ -9,31 +9,27 @@
 
 package net.mamoe.mirai.spi
 
-import net.mamoe.mirai.utils.MiraiExperimentalApi
 import net.mamoe.mirai.utils.MiraiLogger
-import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
-/**
- * 基本 SPI 接口
- * @since 2.8.0
- */
-@MiraiExperimentalApi
-public interface BaseService {
-    /** 使用优先级, 值越小越先使用 */
-    public val priority: Int get() = 5
-}
-
-internal expect class SPIServiceLoader<T : BaseService>(
+internal actual class SPIServiceLoader<T : BaseService> actual constructor(
     defaultService: T,
-    serviceType: KClass<T>,
+    private val serviceType: KClass<T>
 ) {
-    @JvmField
-    var service: T
+    actual var service: T = defaultService
 
-    fun reload()
-
-    companion object {
-        val SPI_SERVICE_LOADER_LOGGER: MiraiLogger
+    actual fun reload() {
+        TODO("native")
     }
+
+    init {
+        reload()
+    }
+
+    actual companion object {
+        actual val SPI_SERVICE_LOADER_LOGGER: MiraiLogger by lazy {
+            MiraiLogger.Factory.create(SPIServiceLoader::class, "spi-service-loader")
+        }
+    }
+
 }

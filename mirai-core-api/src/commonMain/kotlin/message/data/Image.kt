@@ -40,6 +40,10 @@ import net.mamoe.mirai.message.data.Image.Key.isUploaded
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.utils.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmSynthetic
 
 /**
  * 自定义表情 (收藏的表情) 和普通图片.
@@ -390,7 +394,7 @@ public interface Image : Message, MessageContent, CodableMessage {
  * @see IMirai.createImage
  */
 @JvmSynthetic
-public inline fun Image(imageId: String): Image = Image.Builder.newBuilder(imageId).build()
+public inline fun Image(imageId: String): Image = Builder.newBuilder(imageId).build()
 
 /**
  * 使用 [Image.Builder] 构建一个 [Image].
@@ -399,8 +403,8 @@ public inline fun Image(imageId: String): Image = Image.Builder.newBuilder(image
  * @since 2.9.0
  */
 @JvmSynthetic
-public inline fun Image(imageId: String, builderAction: Image.Builder.() -> Unit = {}): Image =
-    Image.Builder.newBuilder(imageId).apply(builderAction).build()
+public inline fun Image(imageId: String, builderAction: Builder.() -> Unit = {}): Image =
+    Builder.newBuilder(imageId).apply(builderAction).build()
 
 public enum class ImageType(
     /**

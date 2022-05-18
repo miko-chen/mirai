@@ -7,15 +7,11 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
-@file:JvmMultifileClass
-@file:JvmName("Utils")
+package net.mamoe.mirai.internal.network.impl.netty
 
-package net.mamoe.mirai.utils
+import net.mamoe.mirai.internal.network.handler.selector.NetworkException
 
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
-
-/**
- * 图片文件过大
- */ // 不要删除多平台结构, 这是 kotlin 的 bug
-public class OverFileSizeMaxException : IllegalStateException()
+internal data class NettyChannelException(
+    override val message: String? = null,
+    override val cause: Throwable? = null,
+) : NetworkException(true)

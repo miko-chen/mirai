@@ -7,15 +7,12 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
-@file:JvmMultifileClass
-@file:JvmName("Utils")
-
 package net.mamoe.mirai.utils
 
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
+import kotlinx.io.errors.IOException
 
-/**
- * 图片文件过大
- */ // 不要删除多平台结构, 这是 kotlin 的 bug
-public class OverFileSizeMaxException : IllegalStateException()
+public expect interface Closeable {
+
+    @Throws(IOException::class)
+    public fun close()
+}

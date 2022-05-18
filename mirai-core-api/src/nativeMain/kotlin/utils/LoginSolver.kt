@@ -12,7 +12,6 @@ package net.mamoe.mirai.utils
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.network.LoginFailedException
 import net.mamoe.mirai.utils.LoginSolver.Companion.Default
-import kotlin.jvm.JvmField
 
 /**
  * 验证码, 设备锁解决器
@@ -20,7 +19,7 @@ import kotlin.jvm.JvmField
  * @see Default
  * @see BotConfiguration.loginSolver
  */
-public expect abstract class LoginSolver() {
+public actual abstract class LoginSolver actual constructor() {
     /**
      * 处理图片验证码.
      *
@@ -29,13 +28,14 @@ public expect abstract class LoginSolver() {
      *
      * @throws LoginFailedException
      */
-    public abstract suspend fun onSolvePicCaptcha(bot: Bot, data: ByteArray): String?
+    public actual abstract suspend fun onSolvePicCaptcha(bot: Bot, data: ByteArray): String?
 
     /**
      * 为 `true` 表示支持滑动验证码, 遇到滑动验证码时 mirai 会请求 [onSolveSliderCaptcha].
      * 否则会跳过滑动验证码并告诉服务器此客户端不支持, 有可能导致登录失败
      */
-    public open val isSliderCaptchaSupported: Boolean
+    public actual open val isSliderCaptchaSupported: Boolean
+        get() = false
 
     /**
      * 处理滑动验证码.
@@ -46,7 +46,7 @@ public expect abstract class LoginSolver() {
      * @throws LoginFailedException
      * @return 验证码解决成功后获得的 ticket.
      */
-    public abstract suspend fun onSolveSliderCaptcha(bot: Bot, url: String): String?
+    public actual abstract suspend fun onSolveSliderCaptcha(bot: Bot, url: String): String?
 
     /**
      * 处理不安全设备验证.
@@ -57,9 +57,12 @@ public expect abstract class LoginSolver() {
      * @return 任意内容. 返回值保留以供未来更新.
      * @throws LoginFailedException
      */
-    public abstract suspend fun onSolveUnsafeDeviceLoginVerify(bot: Bot, url: String): String?
+    public actual abstract suspend fun onSolveUnsafeDeviceLoginVerify(
+        bot: Bot,
+        url: String
+    ): String?
 
-    public companion object {
+    public actual companion object {
         /**
          * 当前平台默认的 [LoginSolver]。
          *
@@ -71,12 +74,12 @@ public expect abstract class LoginSolver() {
          *
          * @return `SwingSolver` 或 `StandardCharImageLoginSolver` 或 `null`
          */
-        @JvmField
-        public val Default: LoginSolver?
+        public actual val Default: LoginSolver?
+            get() = TODO("Not yet implemented")
 
-        @Suppress("unused")
         @Deprecated("Binary compatibility", level = DeprecationLevel.HIDDEN)
-        public fun getDefault(): LoginSolver
+        @Suppress("unused")
+        public actual fun getDefault(): LoginSolver = Default
+            ?: error("LoginSolver is not provided by default on your platform. Please specify by BotConfiguration.loginSolver")
     }
-
 }
