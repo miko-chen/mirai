@@ -9,9 +9,7 @@
 
 package net.mamoe.mirai.internal.message
 
-import kotlinx.io.core.discardExact
-import kotlinx.io.core.readUInt
-import kotlinx.io.core.readUShort
+import io.ktor.utils.io.core.*
 import kotlinx.serialization.json.Json
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.internal.message.DeepMessageRefiner.refineDeep

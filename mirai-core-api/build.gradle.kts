@@ -40,7 +40,7 @@ kotlin {
                 implementation(project(":mirai-console-compiler-annotations"))
                 implementation(`kotlinx-serialization-protobuf`)
                 implementation(`kotlinx-atomicfu`)
-                implementationKotlinxIo(`kotlinx-io-common`)
+                implementation(`ktor-io`)
             }
         }
 
@@ -57,7 +57,6 @@ kotlin {
                 implementation(`jetbrains-annotations`)
                 implementation(`log4j-api`)
                 compileOnly(`slf4j-api`)
-                implementationKotlinxIo(`kotlinx-io-jvm`)
             }
         }
 
@@ -83,7 +82,6 @@ kotlin {
 
         val nativeMain by getting {
             dependencies {
-                implementationKotlinxIo(`kotlinx-io-native`)
             }
         }
     }

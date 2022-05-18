@@ -9,7 +9,7 @@
 
 package net.mamoe.mirai.internal.message
 
-import kotlinx.io.core.toByteArray
+import io.ktor.utils.io.core.*
 import net.mamoe.mirai.contact.AnonymousMember
 import net.mamoe.mirai.contact.ContactOrBot
 import net.mamoe.mirai.contact.Group

@@ -9,9 +9,9 @@
 
 package net.mamoe.mirai.internal.network
 
-import kotlinx.io.core.BytePacketBuilder
-import kotlinx.io.core.ByteReadPacket
-import kotlinx.io.core.writeFully
+import io.ktor.utils.io.core.BytePacketBuilder
+import io.ktor.utils.io.core.ByteReadPacket
+import io.ktor.utils.io.core.writeFully
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.mamoe.mirai.internal.AbstractBot

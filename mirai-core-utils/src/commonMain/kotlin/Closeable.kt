@@ -9,7 +9,7 @@
 
 package net.mamoe.mirai.utils
 
-import kotlinx.io.errors.IOException
+import io.ktor.utils.io.errors.*
 
 public expect interface Closeable {
     @Throws(IOException::class)

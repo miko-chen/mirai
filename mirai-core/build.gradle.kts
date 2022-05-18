@@ -38,7 +38,7 @@ kotlin {
                 implementation(project(":mirai-core-utils"))
                 implementation(`kotlinx-serialization-protobuf`)
                 implementation(`kotlinx-atomicfu`)
-                implementationKotlinxIo(`kotlinx-io-common`)
+                implementation(`ktor-io`)
             }
         }
 
@@ -54,7 +54,6 @@ kotlin {
                 implementation(bouncycastle)
                 implementation(`log4j-api`)
                 implementation(`netty-all`)
-                implementationKotlinxIo(`kotlinx-io-jvm`)
             }
         }
 
@@ -92,7 +91,6 @@ kotlin {
 
         val nativeMain by getting {
             dependencies {
-                implementationKotlinxIo(`kotlinx-io-native`)
             }
         }
     }
