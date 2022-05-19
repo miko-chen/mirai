@@ -75,7 +75,7 @@ internal interface EqualityAsserter {
         }
 
         private fun <T> structureToStringOrOrdinaryString(it: T): String =
-            structureToString().ifBlank {
+            it.structureToString().ifBlank {
                 it.structureToStringIfAvailable() ?: error("structureToString is not available")
             }
     }
