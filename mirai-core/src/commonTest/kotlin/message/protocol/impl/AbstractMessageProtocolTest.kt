@@ -189,7 +189,7 @@ internal abstract class AbstractMessageProtocolTest : AbstractMockNetworkHandler
     protected open fun Deferred<ChecksConfiguration>.doDecoderChecks() {
         val config = this.getCompleted()
         doDecoderChecks(config.messageChain, protocol) {
-            decode(config.elems, config.groupIdOrZero, config.messageSourceKind, bot)
+            decodeAndRefineLight(config.elems, config.groupIdOrZero, config.messageSourceKind, bot)
         }
     }
 

@@ -10,6 +10,7 @@
 package net.mamoe.mirai.internal.message.protocol.impl
 
 import net.mamoe.mirai.internal.message.protocol.MessageProtocol
+import net.mamoe.mirai.internal.message.protocol.decodeAndRefineLight
 import net.mamoe.mirai.message.data.Face
 import net.mamoe.mirai.message.data.MessageSourceKind
 import net.mamoe.mirai.message.data.messageChainOf
@@ -42,7 +43,7 @@ internal class FaceProtocolTest : AbstractMessageProtocolTest() {
         doDecoderChecks(
             messageChainOf(Face(Face.YIN_XIAN)),
         ) {
-            decode(
+            decodeAndRefineLight(
                 listOf(
                     net.mamoe.mirai.internal.network.protocol.data.proto.ImMsgBody.Elem(
                         face = net.mamoe.mirai.internal.network.protocol.data.proto.ImMsgBody.Face(
