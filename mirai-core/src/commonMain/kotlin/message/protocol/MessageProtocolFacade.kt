@@ -106,7 +106,7 @@ internal class MessageProtocolFacadeImpl(
         withGeneralFlags: Boolean,
         isForward: Boolean
     ): List<ImMsgBody.Elem> {
-        val pipeline = MessageProtocolFacade.encoderPipeline
+        val pipeline = encoderPipeline
 
         val attributes = buildTypeSafeMap {
             set(MessageEncoderContext.CONTACT, messageTarget)
@@ -135,7 +135,7 @@ internal class MessageProtocolFacadeImpl(
         bot: Bot,
         builder: MessageChainBuilder
     ) {
-        val pipeline = MessageProtocolFacade.decoderPipeline
+        val pipeline = decoderPipeline
 
         val attributes = buildTypeSafeMap {
             set(MessageDecoderContext.BOT, bot)
