@@ -11,14 +11,14 @@ package net.mamoe.mirai.internal.message.protocol.impl
 
 import net.mamoe.mirai.contact.MemberPermission
 import net.mamoe.mirai.internal.message.data.MarketFaceImpl
+import net.mamoe.mirai.internal.message.protocol.MessageProtocol
 import net.mamoe.mirai.message.data.Dice
 import net.mamoe.mirai.utils.hexToBytes
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class MarketFaceProtocolTest : AbstractMessageProtocolTest() {
-
-    override val protocol = PokeMessageProtocol()
+    override val protocols: Array<out MessageProtocol> = arrayOf(MarketFaceProtocol(), TextProtocol())
 
     @BeforeEach
     fun `init group`() {

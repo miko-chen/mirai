@@ -10,6 +10,7 @@
 package net.mamoe.mirai.internal.message.protocol.impl
 
 import net.mamoe.mirai.contact.MemberPermission
+import net.mamoe.mirai.internal.message.protocol.MessageProtocol
 import net.mamoe.mirai.message.data.LightApp
 import net.mamoe.mirai.message.data.MessageOrigin
 import net.mamoe.mirai.message.data.MessageOriginKind
@@ -20,8 +21,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class MusicShareProtocolTest : AbstractMessageProtocolTest() {
-
-    override val protocol = TextProtocol()
+    override val protocols: Array<out MessageProtocol> =
+        arrayOf(TextProtocol(), MusicShareProtocol(), RichMessageProtocol())
 
     @BeforeEach
     fun `init group`() {

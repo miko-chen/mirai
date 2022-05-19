@@ -10,14 +10,14 @@
 package net.mamoe.mirai.internal.message.protocol.impl
 
 import net.mamoe.mirai.contact.MemberPermission
+import net.mamoe.mirai.internal.message.protocol.MessageProtocol
 import net.mamoe.mirai.message.data.PokeMessage
 import net.mamoe.mirai.utils.hexToBytes
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class PokeMessageProtocolTest : AbstractMessageProtocolTest() {
-
-    override val protocol = PokeMessageProtocol()
+    override val protocols: Array<out MessageProtocol> = arrayOf(TextProtocol(), PokeMessageProtocol())
 
     @BeforeEach
     fun `init group`() {
@@ -69,7 +69,7 @@ internal class PokeMessageProtocolTest : AbstractMessageProtocolTest() {
                 net.mamoe.mirai.internal.network.protocol.data.proto.ImMsgBody.Elem(
                     commonElem = net.mamoe.mirai.internal.network.protocol.data.proto.ImMsgBody.CommonElem(
                         serviceType = 2,
-                        pbElem = "08 01 18 00 20 FF FF FF FF 0F 2A 00 32 00 38 00 50 00".hexToBytes(),
+                        pbElem = "08 01 20 FF FF FF FF FF FF FF FF FF 01 2A 09 E6 88 B3 E4 B8 80 E6 88 B3 32 05 37 2E 32 2E 30".hexToBytes(),
                         businessType = 1,
                     ),
                 ),

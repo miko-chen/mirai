@@ -10,6 +10,7 @@
 package net.mamoe.mirai.internal.message.protocol.impl
 
 import net.mamoe.mirai.contact.MemberPermission
+import net.mamoe.mirai.internal.message.protocol.MessageProtocol
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.ImageType
 import net.mamoe.mirai.utils.hexToBytes
@@ -17,8 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class ImageProtocolTest : AbstractMessageProtocolTest() {
-
-    override val protocol = ImageProtocol()
+    override val protocols: Array<out MessageProtocol> = arrayOf(ImageProtocol())
 
     @BeforeEach
     fun `init group`() {

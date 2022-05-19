@@ -18,7 +18,7 @@ import net.mamoe.mirai.utils.hexToBytes
 import org.junit.jupiter.api.Test
 
 internal class FaceProtocolTest : AbstractMessageProtocolTest() {
-    override val protocol: MessageProtocol = FaceProtocol()
+    override val protocols: Array<out MessageProtocol> = arrayOf(FaceProtocol())
 
     @Test
     fun `can encode`() {
