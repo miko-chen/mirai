@@ -26,6 +26,7 @@ import net.mamoe.mirai.internal.network.handler.state.StateObserver
 import net.mamoe.mirai.internal.network.protocol.packet.OutgoingPacket
 import net.mamoe.mirai.internal.network.protocol.packet.OutgoingPacketWithRespType
 import net.mamoe.mirai.utils.MiraiLogger
+import net.mamoe.mirai.utils.uncheckedCast
 
 /**
  * Coroutine-based network framework. Usually wrapped with [SelectorNetworkHandler] to enable retrying.
@@ -141,6 +142,13 @@ internal interface NetworkHandler : CoroutineScope {
      */
     suspend fun sendAndExpect(packet: OutgoingPacket, timeout: Long = 5000, attempts: Int = 2): Packet?
 
+    suspend fun <R : Packet?> sendAndExpect(
+        packet: OutgoingPacketWithRespType<R>,
+        timeout: Long = 5000,
+        attempts: Int = 2
+    ): R =
+        sendAndExpect(packet as OutgoingPacket, timeout, attempts).uncheckedCast()
+
     /**
      * Sends [packet] and does not expect any response.
      *
@@ -184,7 +192,8 @@ internal interface NetworkHandler : CoroutineScope {
     /**
      * @suppress This is for compatibility with old code. Use [sendAndExpect] without extension receiver instead.
      */
-    @Suppress("UNCHECKED_CAST")
+    @JvmName("sendAndExpect1")
+    @Suppress("UNCHECKED_CAST", "INAPPLICABLE_JVM_NAME")
     suspend fun <R : Packet?> OutgoingPacketWithRespType<R>.sendAndExpect(
         timeoutMillis: Long = 5000,
         retry: Int = 2,
